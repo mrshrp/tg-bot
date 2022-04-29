@@ -9,6 +9,14 @@ mainScene.use((ctx, next) => {
 });
 
 mainScene.do(async (ctx) => {
+	if (ctx.session.message_id) {
+		try {
+			await ctx.api.deleteMessage(ctx.chat?.id ?? '', ctx.session.message_id);
+			delete ctx.session.message_id;
+		} catch (error) {
+			console.log(error);
+		}
+	}
 	await ctx.reply(`Enter your name, ${ctx.scene.arg?.title || 'mortal'}:`);
 });
 
@@ -27,7 +35,7 @@ mainScene.label('start');
 // mainScene.call('captcha');
 
 mainScene.do(async (ctx) => {
-	await ctx.reply(`Please chose:`, {
+	const m = await ctx.reply(`Please chose:`, {
 		reply_markup: {
 			inline_keyboard: [
 				[
@@ -38,6 +46,8 @@ mainScene.do(async (ctx) => {
 			],
 		},
 	});
+
+	ctx.session.message_id = m.message_id;
 });
 
 mainScene.wait().on('callback_query:data', async (ctx) => {
@@ -52,6 +62,14 @@ mainScene.wait().on('callback_query:data', async (ctx) => {
 		// ctx.scene.call('add_item');
 	} else if (choice === 'exit') {
 		// Exit scene, don't call next middleware.
+		if (ctx.session.message_id) {
+			try {
+				await ctx.api.deleteMessage(ctx.chat?.id ?? '', ctx.session.message_id);
+				delete ctx.session.message_id;
+			} catch (error) {
+				console.log(error);
+			}
+		}
 		ctx.scene.exit();
 		await ctx.reply('Main scene finished');
 	}

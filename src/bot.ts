@@ -11,6 +11,7 @@ import {
 	setupMiddlewareContext,
 	setupSession,
 } from './middlewares';
+import { subRedis } from './redis';
 
 export const bot = new Bot<BotContext>(config.BOT_TOKEN);
 
@@ -40,6 +41,16 @@ bot.use(menu);
 
 bot.command('start', async (ctx) => {
 	await ctx.reply('Check out this menu:', { reply_markup: menu });
+});
+
+bot.command('say', async (ctx) => {
+	await subRedis.publish(
+		'channel',
+		JSON.stringify({
+			chat_id: ctx.chat.id,
+			message: ctx.match,
+		})
+	);
 });
 
 bot.command('scene_start', async (ctx) => {

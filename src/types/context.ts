@@ -4,6 +4,7 @@ import { ScenesFlavor, ScenesSessionFlavor } from 'grammy-scenes';
 
 interface Language {
 	languageCode?: string;
+	message_id?: number;
 }
 
 export type BotContext = DefaultContext &
